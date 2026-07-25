@@ -27,16 +27,14 @@ def encode_categorical(df: pd.DataFrame) -> pd.DataFrame:
 
 def create_interaction_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Create interaction features that capture combined effects between
-    variables that a model can't infer from individual columns alone.
-
+    Create interaction features that capture combined effects discovered during EDA.
+    Specifically: smoker status combined with BMI, since EDA showed their combined
+    effect on charges is much stronger than either factor alone.
     """
     df = df.copy()
-    # Age x Smoker interaction - caputures how smoking risk compounds with age
-    df["age_smoker_interaction"] = df["age"] * df["smoker"]
 
-    # BMI × Smoker interaction — captures how obesity risk compounds with smoking
-    df["bmi_smoker_interaction"] = df["bmi"] * df["smoker"]
+    # Interaction between smoking status and BMI
+    df["smoker_bmi_interaction"] = df["smoker"] * df["bmi"]
 
     return df
 
