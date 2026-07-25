@@ -41,9 +41,10 @@ def create_interaction_features(df: pd.DataFrame) -> pd.DataFrame:
 
 def build_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Full feature engineering pipeline: encode categoricals, then
-    create interaction features.
+    Main entry point for feature engineering pipeline.
+    Applies encoding and interaction features in the correct order.
     """
     df = encode_categorical(df)
     df = create_interaction_features(df)
+
     return df
