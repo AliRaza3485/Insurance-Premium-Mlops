@@ -9,14 +9,14 @@ def encode_categorical(df: pd.DataFrame) -> pd.DataFrame:
     """
     df = df.copy()
 
-    # Binary encoding for sex and smoker (0/1)
     df["sex"] = df["sex"].map({"male": 0, "female": 1})
     df["smoker"] = df["smoker"].map({"no": 0, "yes": 1})
 
-    # One-hot encoding for region (creates separate columns per region)
+    # Force region to always have all 4 known categories, so output columns are consistent
+    all_regions = ["northeast", "northwest", "southeast", "southwest"]
+    df["region"] = pd.Categorical(df["region"], categories=all_regions)
     df = pd.get_dummies(df, columns=["region"], drop_first=True)
 
-    # Convert one-hot columns from bool to int (0/1) for consistency
     region_cols = [col for col in df.columns if col.startswith("region_")]
     df[region_cols] = df[region_cols].astype(int)
 
@@ -44,6 +44,23 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
     """
     df = encode_categorical(df)
     df = create_interaction_features(df)
+
+    # Enforce a fixed column order so predictions never break due to reordering
+    expected_columns = [
+        "age",
+        "sex",
+        "bmi",
+        "children",
+        "smoker",
+        "region_northwest",
+        "region_southeast",
+        "region_southwest",
+        "smoker_bmi_interaction",
+        "charges",
+    ]
+    # Only reorder columns that exist (charges may be dropped later for X)
+    ordered_columns = [col for col in expected_columns if col in df.columns]
+    df = df[ordered_columns]
 
     return df
 
