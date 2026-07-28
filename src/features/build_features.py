@@ -48,13 +48,12 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-from sklearn.model_selection import train_test_split
-
-
-from sklearn.model_selection import train_test_split
-
-
-def split_data(df: pd.DataFrame, target_col: str = 'charges', test_size: float = 0.2, random_state: int = 42):
+def split_data(
+    df: pd.DataFrame,
+    target_col: str = "charges",
+    test_size: float = 0.2,
+    random_state: int = 42,
+):
     """
     Split the dataset into training and testing sets.
     """
