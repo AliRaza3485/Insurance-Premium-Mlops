@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from typing import Literal
 import joblib
 import pandas as pd
 import sys
@@ -10,17 +11,18 @@ from src.features.build_features import build_features
 
 app = FastAPI(title="Insurance Charges Predictor")
 
-# Load model once when API starts (not on every request)
 model = joblib.load("models/xgboost_model.pkl")
 
 
 class InsuranceInput(BaseModel):
-    age: int
-    sex: str
-    bmi: float
-    children: int
-    smoker: str
-    region: str
+    age: int = Field(..., ge=0, le=120, description="Age must be between 0 and 120")
+    sex: Literal["male", "female"]
+    bmi: float = Field(
+        ..., gt=0, le=80, description="BMI must be a realistic positive value"
+    )
+    children: int = Field(..., ge=0, le=20)
+    smoker: Literal["yes", "no"]
+    region: Literal["southwest", "southeast", "northwest", "northeast"]
 
 
 @app.get("/")
@@ -31,7 +33,7 @@ def read_root():
 @app.post("/predict")
 def predict(data: InsuranceInput):
     input_df = pd.DataFrame([data.dict()])
-    input_df["charges"] = 0  # dummy, required by build_features but not used
+    input_df["charges"] = 0
 
     features = build_features(input_df)
     X = features.drop(columns=["charges"])

@@ -45,3 +45,33 @@ def test_predict_smoker_higher_than_nonsmoker():
     smoker = client.post("/predict", json={**base_payload, "smoker": "yes"})
 
     assert smoker.json()["predicted_charge"] > non_smoker.json()["predicted_charge"]
+
+
+def test_predict_rejects_invalid_age():
+    """Test that invalid age (negative) is rejected with 422"""
+    payload = {
+        "age": -5,
+        "sex": "male",
+        "bmi": 25.0,
+        "children": 1,
+        "smoker": "yes",
+        "region": "southwest",
+    }
+    response = client.post("/predict", json=payload)
+
+    assert response.status_code == 422
+
+
+def test_predict_rejects_invalid_smoker_value():
+    """Test that invalid smoker value (not yes/no) is rejected"""
+    payload = {
+        "age": 30,
+        "sex": "male",
+        "bmi": 25.0,
+        "children": 1,
+        "smoker": "maybe",
+        "region": "southwest",
+    }
+    response = client.post("/predict", json=payload)
+
+    assert response.status_code == 422
